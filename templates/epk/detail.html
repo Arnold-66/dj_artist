@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}{{ kit.title }} | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<section class="hero" {% if kit.hero_image %}style="background-image:linear-gradient(90deg,rgba(0,0,0,.94),rgba(0,0,0,.35)),url('{{ kit.hero_image.url }}')"{% endif %}>
+  <div class="container hero-content">
+    <p class="hero-label">FOR PROMOTERS &amp; MEDIA</p>
+    <h1>OFFICIAL<br><span>PRESS KIT.</span></h1>
+    <p class="hero-description">
+      {{ kit.short_bio|default:"Artist biography, technical riders and professional press materials for promoters and media." }}
+    </p>
+    <p class="epk-updated">Last updated: {{ kit.updated_at|date:"d F Y" }}</p>
+    <a href="/epk/{{ kit.pk }}/" class="btn btn-gold">DOWNLOAD PRESS KIT</a>
+    <a href="/bookings/" class="btn btn-outline-light">MAKE A BOOKING</a>
+  </div>
+  <div class="scroll-indicator">SCROLL TO EXPLORE</div>
+</section>
+
+<section class="content-section">
+    <div class="container">
+
+        {% if kit.full_bio %}
+            <div class="epk-content-section">
+                <p class="section-label">ABOUT THE ARTIST</p>
+                <h2>ARTIST <span>BIOGRAPHY.</span></h2>
+
+                <div class="epk-biography">
+                    {{ kit.full_bio|linebreaks }}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if kit.technical_rider or kit.hospitality_rider or kit.stage_plot %}
+            <div class="epk-content-section mt-5">
+
+                <p class="section-label">PRODUCTION INFORMATION</p>
+                <h2>TECHNICAL <span>&amp; HOSPITALITY.</span></h2>
+
+                <div class="row g-3">
+
+                    {% if kit.technical_rider %}
+                        <div class="col-md-4">
+                            <div class="epk-download-card">
+                                <h3>Technical Rider</h3>
+                                <p>Technical and equipment requirements.</p>
+                                <a href="{% url 'epk:rider_download' kit.pk 'technical' %}"
+                                   class="btn btn-gold">
+                                    VIEW / DOWNLOAD
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if kit.hospitality_rider %}
+                        <div class="col-md-4">
+                            <div class="epk-download-card">
+                                <h3>Hospitality Rider</h3>
+                                <p>Hospitality and accommodation requirements.</p>
+                                <a href="{% url 'epk:rider_download' kit.pk 'hospitality' %}"
+                                   class="btn btn-gold">
+                                    VIEW / DOWNLOAD
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if kit.stage_plot %}
+                        <div class="col-md-4">
+                            <div class="epk-download-card">
+                                <h3>Stage Plot</h3>
+                                <p>Stage layout and performance setup.</p>
+                                <a href="{% url 'epk:rider_download' kit.pk 'stage_plot' %}"
+                                   class="btn btn-gold">
+                                    VIEW / DOWNLOAD
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="epk-content-section mt-5">
+
+            <p class="section-label">OFFICIAL PRESS PHOTOGRAPHY</p>
+            <h2>HIGH-RESOLUTION <span>IMAGES.</span></h2>
+
+            <p>
+                Official photographs for media publications, promoters
+                and event marketing.
+            </p>
+
+            <div class="row g-4 mt-2">
+
+                {% for photo in kit.press_images.all %}
+                    <div class="col-12 col-sm-6 col-lg-4">
+
+                        <div class="epk-public-image">
+
+                            <a href="{{ photo.image.url }}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+
+                                <img
+                                    src="{{ photo.image.url }}"
+                                    alt="{{ photo.title }}"
+                                    loading="lazy"
+                                >
+
+                            </a>
+
+                            <div class="epk-image-caption">
+                                <h3>{{ photo.title }}</h3>
+
+                                {% if photo.photographer_credit %}
+                                    <p>
+                                        Photography: {{ photo.photographer_credit }}
+                                    </p>
+                                {% endif %}
+
+                                <a href="{% url 'epk:press_image_download' kit.pk photo.pk %}">
+                                    DOWNLOAD HIGH-RESOLUTION IMAGE ↗
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="col-12">
+                        <p class="muted">
+                            Press photographs will be added soon.
+                        </p>
+                    </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

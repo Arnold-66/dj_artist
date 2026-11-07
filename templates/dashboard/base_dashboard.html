@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="dash-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="dash-sidebar" id="dashSidebar">
+    <div class="dash-sidebar-head">
+      <a href="{% url 'dashboard:overview' %}" class="dash-sidebar-brand">DJ <span>ARTIST</span></a>
+      <button class="dash-sidebar-close" id="sidebarClose" aria-label="Close">×</button>
+    </div>
+
+    <p class="dash-sidebar-label">MANAGEMENT</p>
+
+    <ul class="dash-nav">
+      <li>
+        <a href="{% url 'dashboard:overview' %}" class="dash-nav-link {% if request.resolver_match.url_name == 'overview' %}is-active{% endif %}">
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:bookings' %}" class="dash-nav-link {% if 'booking' in request.resolver_match.url_name %}is-active{% endif %}">
+          <span>Bookings</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:music_list' %}" class="dash-nav-link {% if 'music' in request.resolver_match.url_name %}is-active{% endif %}">
+          <span>Music</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:event_list' %}" class="dash-nav-link {% if request.resolver_match.url_name == 'event_list' or request.resolver_match.url_name == 'event_create' or request.resolver_match.url_name == 'event_edit' or request.resolver_match.url_name == 'event_delete' %}is-active{% endif %}">
+          <span>Events</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:epk_list' %}" class="dash-nav-link {% if 'epk' in request.resolver_match.url_name and 'image' not in request.resolver_match.url_name %}is-active{% endif %}">
+          <span>Press Kits</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:epk_images_list' %}" class="dash-nav-link {% if 'image' in request.resolver_match.url_name %}is-active{% endif %}">
+          <span>Press Images</span>
+        </a>
+      </li>
+
+      {% if request.user.is_superuser or request.user.role == "admin" %}
+        <li class="dash-nav-sep"></li>
+        <li>
+          <a href="{% url 'dashboard:user_list' %}" class="dash-nav-link {% if 'user' in request.resolver_match.url_name %}is-active{% endif %}">
+            <span>Users</span>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+
+    <div class="dash-sidebar-foot">
+      <p class="dash-sidebar-user">
+        <strong>{{ request.user.username }}</strong><br>
+        <small>{{ staff_role }}</small>
+      </p>
+      <form method="post" action="{% url 'dashboard:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-light btn-sm w-100">LOG OUT</button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+    <div class="dash-main-topbar">
+      <button class="dash-toggle" id="sidebarToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div>
+        <p class="dash-breadcrumb">{% block dash_breadcrumb %}MANAGEMENT{% endblock %}</p>
+        <h1 class="dash-title">{% block dash_title %}Dashboard{% endblock %}</h1>
+      </div>
+    </div>
+
+    <div class="dash-content">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="dash-alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      {% block dash_content %}{% endblock %}
+    </div>
+  </main>
+
+  <div class="dash-backdrop" id="sidebarBackdrop"></div>
+</div>
+
+<script>
+  (function () {
+    const sidebar = document.getElementById("dashSidebar");
+    const toggle = document.getElementById("sidebarToggle");
+    const close = document.getElementById("sidebarClose");
+    const backdrop = document.getElementById("sidebarBackdrop");
+
+    function open() {
+      sidebar.classList.add("is-open");
+      backdrop.classList.add("is-open");
+    }
+    function shut() {
+      sidebar.classList.remove("is-open");
+      backdrop.classList.remove("is-open");
+    }
+
+    toggle && toggle.addEventListener("click", open);
+    close && close.addEventListener("click", shut);
+    backdrop && backdrop.addEventListener("click", shut);
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Email Addresses | DJ ARTIST{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container auth-container">
+
+        <div class="auth-hero">
+            <p class="section-label">ACCOUNT SETTINGS</p>
+            <h1>EMAIL <span>ADDRESSES.</span></h1>
+            <p class="auth-sub">
+                Manage the addresses attached to your account.
+                Unverified addresses can't be used to download press-kit files.
+            </p>
+        </div>
+
+        {# ---------- Flash messages (kept tidy) ---------- #}
+        {% if messages %}
+            <div class="auth-messages">
+                {% for message in messages %}
+                    <div class="booking-error">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {# ---------- Current addresses ---------- #}
+        <div class="auth-card mb-3">
+            <div class="auth-confirm-icon">
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+
+            <p class="auth-confirm-line">
+                Addresses associated with your account:
+            </p>
+
+            <ul class="auth-email-list">
+                {% for radio in emailaddress_radios %}
+                    {% with emailaddress=radio.emailaddress %}
+                        <li class="auth-email-item">
+                            <div class="auth-email-main">
+                                <span class="auth-email">{{ emailaddress.email }}</span>
+
+                                {% if emailaddress.verified %}
+                                    <span class="auth-badge auth-badge-ok">
+                                        <i class="fa-solid fa-check"></i> Verified
+                                    </span>
+                                {% else %}
+                                    <span class="auth-badge auth-badge-warn">
+                                        <i class="fa-solid fa-clock"></i> Unverified
+                                    </span>
+                                {% endif %}
+
+                                {% if emailaddress.primary %}
+                                    <span class="auth-badge auth-badge-gold">Primary</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="auth-email-actions">
+                                {% if not emailaddress.primary %}
+                                    <form method="post" action="{% url 'account_email' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="email" value="{{ emailaddress.email }}">
+                                        <button type="submit" name="action" value="primary"
+                                                class="btn btn-outline-light btn-sm">
+                                            Make primary
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if not emailaddress.verified %}
+                                    <form method="post" action="{% url 'account_email' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="email" value="{{ emailaddress.email }}">
+                                        <button type="submit" name="action" value="resend"
+                                                class="btn btn-gold btn-sm">
+                                            <i class="fa-solid fa-paper-plane"></i> Resend verification
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if not emailaddress.primary %}
+                                    <form method="post" action="{% url 'account_email' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="email" value="{{ emailaddress.email }}">
+                                        <button type="submit" name="action" value="remove"
+                                                class="btn btn-outline-danger btn-sm">
+                                            Remove
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endwith %}
+                {% empty %}
+                    <li class="auth-email-item">
+                        <p class="muted mb-0">No email addresses on file.</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {# ---------- Add a new address ---------- #}
+        <div class="auth-card">
+            <p class="section-label">ADD AN ADDRESS</p>
+            <h3 class="auth-subheading">Add email address</h3>
+
+            <form method="post" action="{% url 'account_email' %}" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="booking-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="auth-field">
+                    <label for="{{ form.email.id_for_label }}">Email address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="booking-error">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" name="action" value="add"
+                        class="btn btn-gold w-100 mt-3">
+                    <i class="fa-solid fa-plus"></i> ADD EMAIL
+                </button>
+            </form>
+        </div>
+
+        {# ---------- Footer links ---------- #}
+        <p class="auth-footer mt-4">
+            <a href="{% url 'account_change_password' %}">Change password</a>
+            &nbsp;·&nbsp;
+            <a href="{% url 'account_logout' %}">Sign out</a>
+            &nbsp;·&nbsp;
+            <a href="/">Back to home</a>
+        </p>
+
+    </div>
+</section>
+{% endblock %}

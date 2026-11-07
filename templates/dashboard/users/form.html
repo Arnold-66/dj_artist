@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | DJ ARTIST{% endblock %}
+{% block content %}
+<section class="management-dashboard">
+    <div class="container narrow" style="margin-top: 8rem;">
+        <div class="dashboard-welcome">
+            <div>
+                <p class="section-label">ADMINISTRATOR</p>
+                <h1>{{ title|upper }}.</h1>
+            </div>
+            <a href="{% url 'dashboard:user_list' %}" class="btn btn-outline-light">← BACK</a>
+        </div>
+
+        <div class="management-login-form">
+            <form method="post" class="site-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label>Username</label>
+                        {{ form.username }}
+                        {{ form.username.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Email</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>First name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Last name</label>
+                        {{ form.last_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Role</label>
+                        {{ form.role }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="d-block">Permissions</label>
+                        <div class="form-check">{{ form.is_staff }} <label class="form-check-label">Staff (dashboard access)</label></div>
+                        <div class="form-check">{{ form.is_active }} <label class="form-check-label">Active</label></div>
+                    </div>
+
+                    {% if form.password1 %}
+                    <div class="col-md-6">
+                        <label>Password</label>
+                        {{ form.password1 }}
+                        {{ form.password1.errors }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Confirm Password</label>
+                        {{ form.password2 }}
+                        {{ form.password2.errors }}
+                    </div>
+                    {% endif %}
+
+                    {% if form.new_password %}
+                    <div class="col-md-6">
+                        <label>New password (optional)</label>
+                        {{ form.new_password }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-gold mt-4">SAVE USER</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

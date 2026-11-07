@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ artist.stage_name|default:"DJ ARTIST" }} | Official Website{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero" {% if artist.hero_image %}style="background-image:linear-gradient(90deg,rgba(0,0,0,.94),rgba(0,0,0,.35)),url('{{ artist.hero_image.url }}')"{% endif %}>
+  <div class="container hero-content">
+    <p class="hero-label">INTERNATIONAL DJ &amp; PERFORMING ARTIST</p>
+    <h1>THE SOUND.<br>THE ENERGY.<br><span>THE EXPERIENCE.</span></h1>
+    <p class="hero-description">{{ artist.tagline|default:"Bringing unforgettable musical experiences to clubs, festivals and international stages." }}</p>
+    <a href="/bookings/" class="btn btn-gold">BOOK THE DJ</a>
+    <a href="/music/" class="btn btn-outline-light">EXPLORE MUSIC</a>
+  </div>
+  <div class="scroll-indicator">SCROLL TO EXPLORE</div>
+</section>
+
+<!-- ============================================================
+     THE ARTIST
+     ============================================================ -->
+<section class="intro-section artist-intro-section">
+  <div class="container">
+    <div class="artist-intro">
+      <p class="section-label">THE ARTIST</p>
+      <h2>MUSIC WITHOUT<br><span>BOUNDARIES.</span></h2>
+      <div class="artist-intro-bio">
+        {{ artist.short_bio|default:"Discover the music, performances and creative journey of DJ ARTIST."|linebreaks }}
+      </div>
+      <div class="artist-intro-actions">
+        <a href="/epk/official/" class="btn btn-gold">READ THE FULL STORY</a>
+        <a href="/music/" class="text-link">EXPLORE THE MUSIC ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     UPCOMING EVENTS
+     ============================================================ -->
+<section class="content-section">
+  <div class="container">
+    <div class="section-heading">
+      <div>
+        <p class="section-label">ON THE ROAD</p>
+        <h2>UPCOMING EVENTS</h2>
+      </div>
+      <a href="/events/" class="text-link">VIEW ALL EVENTS ↗</a>
+    </div>
+    <div class="row g-4">
+      {% for event in events %}
+        <div class="col-md-4">
+          <article class="event-card">
+            {% if event.poster %}<img src="{{ event.poster.url }}" alt="{{ event.title }}">{% endif %}
+            <p class="section-label">{{ event.start_at|date:"d M Y" }}</p>
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.venue }} · {{ event.city_country }}</p>
+            <a href="{% url 'events:detail' event.slug %}" class="text-link">EVENT DETAILS ↗</a>
+          </article>
+        </div>
+      {% empty %}
+        <p class="muted">New dates will be announced soon. Subscribe to receive updates.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIDEOS  (matches /music/ — includes streaming links)
+     ============================================================ -->
+<section class="content-section music-content-section">
+  <div class="container">
+    <div class="section-heading mb-4 d-flex justify-content-between align-items-end flex-wrap gap-2">
+      <div>
+        <p class="section-label">WATCH</p>
+        <h2>VIDEOS <span>&amp; PERFORMANCES.</span></h2>
+      </div>
+      <a href="/music/" class="text-link">ALL MIXES ↗</a>
+    </div>
+
+    <div class="row g-3 video-grid">
+      {% for video in videos %}
+        <div class="col-12 col-sm-6 col-lg-3">
+          <article class="music-card{% if not video.video_file and video.get_embed_src %} is-embed{% else %} is-local{% endif %}">
+            {% if not video.video_file and video.cover_image %}
+              <img src="{{ video.cover_image.url }}" alt="{{ video.title }}" class="mix-cover">
+            {% endif %}
+
+            <div class="music-card-body">
+              <h3>{{ video.title }}</h3>
+              {% if video.description %}<p>{{ video.description }}</p>{% endif %}
+
+              <div class="video-track-media">
+                {% if video.video_file %}
+                  {% url 'music:download' video.pk as video_download_url %}
+                  {% include "music/_player.html" with src=video.video_file.url kind="video" title=video.title download_url=video_download_url %}
+                {% else %}
+                  {% with embed_src=video.get_embed_src %}
+                    {% if embed_src %}
+                      <div class="music-player video-player">
+                        <iframe
+                          src="{{ embed_src }}"
+                          title="{{ video.title }}"
+                          loading="lazy"
+                          referrerpolicy="strict-origin-when-cross-origin"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowfullscreen></iframe>
+                      </div>
+                    {% else %}
+                      <p class="muted">No valid video link has been added.</p>
+                    {% endif %}
+                  {% endwith %}
+                {% endif %}
+              </div>
+
+              {% if video.streaming_links %}
+                <div class="streaming-links">
+                  {% for name, icon, url in video.streaming_links %}
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer"
+                       class="streaming-link" title="{{ name }}" aria-label="{{ name }}">
+                      <i class="{{ icon }}"></i>
+                    </a>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="music-empty"><p>No videos have been added yet.</p></div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     AUDIO  (matches /music/ — uniform slot for local + embed)
+     ============================================================ -->
+<section class="content-section audio-library-section">
+  <div class="container">
+    <div class="section-heading mb-4 d-flex justify-content-between align-items-end flex-wrap gap-2">
+      <div>
+        <p class="section-label">LISTEN</p>
+        <h2>AUDIO <span>&amp; MIXES.</span></h2>
+      </div>
+      <a href="/music/" class="text-link">ALL AUDIO ↗</a>
+    </div>
+
+    <div class="row g-3 audio-grid">
+      {% for audio in audios %}
+        <div class="col-12 col-sm-6 col-lg-4">
+          <article class="audio-track-card{% if not audio.audio_file and audio.get_embed_src %} is-embed{% else %} is-local{% endif %}">
+            <div class="audio-track-body">
+              <span class="track-platform">{{ audio.platform|default:"Audio" }}</span>
+              <h4>{{ audio.title }}</h4>
+              {% if audio.description %}
+                <p class="track-description">{{ audio.description|linebreaksbr }}</p>
+              {% endif %}
+
+              <div class="audio-track-media">
+                {% if audio.audio_file %}
+                  {% url 'music:download' audio.pk as audio_download_url %}
+                  {% if audio.cover_image %}
+                    {% include "music/_player.html" with src=audio.audio_file.url kind="audio" title=audio.title download_url=audio_download_url cover_url=audio.cover_image.url %}
+                  {% else %}
+                    {% include "music/_player.html" with src=audio.audio_file.url kind="audio" title=audio.title download_url=audio_download_url %}
+                  {% endif %}
+                {% else %}
+                  {% with embed_src=audio.get_embed_src %}
+                    {% if embed_src %}
+                      <div class="audio-embed">
+                        <iframe
+                          src="{{ embed_src }}"
+                          title="{{ audio.title }}"
+                          loading="lazy"
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          allowfullscreen></iframe>
+                      </div>
+                    {% else %}
+                      <p class="muted">This track does not have a valid player link.</p>
+                    {% endif %}
+                  {% endwith %}
+                {% endif %}
+              </div>
+
+              {% if audio.streaming_links %}
+                <div class="streaming-links">
+                  {% for name, icon, url in audio.streaming_links %}
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer"
+                       class="streaming-link" title="{{ name }}" aria-label="{{ name }}">
+                      <i class="{{ icon }}"></i>
+                    </a>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="music-empty">
+            <h3>No music available yet.</h3>
+            <p>New tracks and mixes will appear here.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     EPK
+     ============================================================ -->
+<section class="content-section epk-section">
+  <div class="container text-center">
+    <p class="section-label">FOR PROMOTERS &amp; MEDIA</p>
+    <h2>OFFICIAL PRESS KIT</h2>
+    <p>Access artist biographies, technical riders and professional press materials.</p>
+    <a href="/epk/official/" class="btn btn-gold">ACCESS THE EPK</a>
+  </div>
+</section>
+
+<!-- ============================================================
+     BOOKING
+     ============================================================ -->
+<section class="booking-section">
+  <div class="container text-center">
+    <p class="section-label">LET'S MAKE IT HAPPEN</p>
+    <h2>BOOK THE EXPERIENCE.</h2>
+    <a href="/bookings/" class="btn btn-gold">MAKE A BOOKING INQUIRY</a>
+  </div>
+</section>
+
+<!-- ============================================================
+     NEWSLETTER
+     ============================================================ -->
+<section class="newsletter-strip">
+  <div class="container text-center">
+    <p class="section-label">STAY IN THE LOOP</p>
+    <h2>GET THE LATEST UPDATES.</h2>
+    <p>New music, event announcements and tour dates delivered to your inbox.</p>
+    <a href="/subscribe/" class="btn btn-outline-light">JOIN THE MAILING LIST</a>
+  </div>
+</section>
+
+{% endblock %}

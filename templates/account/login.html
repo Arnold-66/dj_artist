@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Sign In | DJ ARTIST{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container auth-container">
+
+        <div class="auth-hero">
+            <p class="section-label">MEMBER ACCESS</p>
+            <h1>SIGN <span>IN.</span></h1>
+            <p class="auth-sub">
+                Log in to download riders, stage plots, and press photos.
+                Staff can log in here too.
+            </p>
+        </div>
+
+        <form method="post" class="auth-card" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="booking-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="auth-field">
+                <label for="{{ form.login.id_for_label }}">Username or email</label>
+                {{ form.login }}
+                {% if form.login.errors %}<div class="booking-error">{{ form.login.errors }}</div>{% endif %}
+            </div>
+
+            <div class="auth-field">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                <div class="password-wrap">
+                    {{ form.password }}
+                    <button type="button"
+                            class="password-toggle"
+                            data-target="{{ form.password.id_for_label }}"
+                            aria-label="Show password">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                {% if form.password.errors %}<div class="booking-error">{{ form.password.errors }}</div>{% endif %}
+            </div>
+
+            <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+
+            <button type="submit" class="btn btn-gold w-100 mt-3">SIGN IN</button>
+
+            <p class="auth-footer">
+                New here?
+                <a href="{% url 'account_signup' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">
+                    Create an account
+                </a>
+            </p>
+        </form>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/password-toggle.js' %}"></script>
+{% endblock %}

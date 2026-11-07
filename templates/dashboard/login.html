@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Management Login | DJ ARTIST{% endblock %}
+{% block content %}
+<section class="management-login-section">
+    <div class="container narrow">
+        <p class="section-label">STAFF ACCESS</p>
+        <h1>MANAGEMENT<br><span>LOGIN.</span></h1>
+        <p class="login-description">Sign in with your administrator or operator account.</p>
+
+        <form method="post" class="management-login-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="mb-3">
+                <label>Username</label>
+                {{ form.username }}
+            </div>
+            <div class="mb-3">
+                <label>Password</label>
+                {{ form.password }}
+            </div>
+            <button class="btn btn-gold w-100" type="submit">SIGN IN</button>
+        </form>
+        <p class="login-footer mt-3">Forgot your password? Contact the site administrator.</p>
+    </div>
+</section>
+{% endblock %}

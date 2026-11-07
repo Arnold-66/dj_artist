@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Add Music | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+    <div class="container">
+        <p class="section-label">DASHBOARD</p>
+        <h1>ADD <span>MUSIC.</span></h1>
+        <p>Upload a file or paste a platform embed link for a new video or audio track.</p>
+    </div>
+</section>
+
+<section class="content-section">
+    <div class="container">
+
+        <div class="admin-form-card">
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="form-field">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                            {% if field.field.required %}<span style="color:#c9a45c">*</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="form-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-gold">SAVE MUSIC</button>
+                    <a href="{% url 'music:list' %}" class="btn btn-outline-light">CANCEL</a>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Booking Inquiry | DJ ARTIST{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container" style="margin-top: 8rem;">
+    <p class="section-label">CORPORATE · FESTIVALS · CLUBS</p>
+    <h1>BOOK THE<br><span>EXPERIENCE.</span></h1>
+    <p>Share your event details and the management team will get back to you.</p>
+  </div>
+</section>
+
+<section class="form-section">
+  <div class="container narrow">
+    <form method="post" class="site-form" novalidate>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="row g-3">
+        {% for field in form %}
+          {# Hide the "other_event_type" field initially; JS toggles it #}
+          <div
+            class="{% if field.name == 'message' %}col-12{% else %}col-md-6{% endif %}"
+            {% if field.name == 'other_event_type' %}id="wrap_other_event_type" style="display:none;"{% endif %}
+          >
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <small class="text-danger">{{ field.errors }}</small>
+            {% endif %}
+            {% if field.help_text %}
+              <small class="muted">{{ field.help_text }}</small>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <button class="btn btn-gold mt-4" type="submit">
+        SEND BOOKING INQUIRY
+      </button>
+    </form>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const eventType   = document.getElementById("id_event_type");
+    const otherWrap   = document.getElementById("wrap_other_event_type");
+    const otherInput  = document.getElementById("id_other_event_type");
+
+    if (!eventType || !otherWrap || !otherInput) return;
+
+    function toggleOther() {
+      const isOther = eventType.value === "other";
+      otherWrap.style.display = isOther ? "" : "none";
+      otherInput.required = isOther;          // browser-level hint
+      if (!isOther) otherInput.value = "";    // clear stale data
+    }
+
+    eventType.addEventListener("change", toggleOther);
+    toggleOther(); // run on load (handles re-render with errors)
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Confirm Email | DJ ARTIST{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container auth-container">
+
+        <div class="auth-hero">
+            <p class="section-label">EMAIL VERIFICATION</p>
+
+            {% if confirmation %}
+                <h1>CONFIRM <span>EMAIL.</span></h1>
+                <p class="auth-sub">
+                    Click the button below to verify
+                    <strong>{{ confirmation.email_address.email }}</strong>
+                    and unlock press-kit downloads.
+                </p>
+            {% else %}
+                <h1>LINK <span>EXPIRED.</span></h1>
+                <p class="auth-sub">
+                    This verification link is invalid or has already been used.
+                    You can request a fresh link below.
+                </p>
+            {% endif %}
+        </div>
+
+        {% if confirmation %}
+
+            {# ---------- Valid link — confirm it ---------- #}
+            <div class="auth-card">
+
+                <div class="auth-confirm-icon">
+                    <i class="fa-solid fa-envelope-circle-check"></i>
+                </div>
+
+                <p class="auth-confirm-line">
+                    Verifying account for
+                    <strong class="auth-email">{{ confirmation.email_address.email }}</strong>
+                </p>
+
+                <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-gold w-100">
+                        <i class="fa-solid fa-check"></i> CONFIRM EMAIL
+                    </button>
+                </form>
+
+                <p class="auth-footer">
+                    Wrong account?
+                    <a href="{% url 'account_logout' %}">Sign out</a>
+                </p>
+            </div>
+
+        {% else %}
+
+            {# ---------- Invalid / expired link ---------- #}
+            <div class="auth-card">
+
+                <div class="auth-confirm-icon auth-confirm-icon-warn">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+
+                <p class="auth-confirm-line">
+                    Enter the email you signed up with, and we'll send a new
+                    verification link.
+                </p>
+
+                <form method="post" action="{% url 'account_email' %}" class="auth-resend-form">
+                    {% csrf_token %}
+
+                    {% if email_form.non_field_errors %}
+                        <div class="booking-error">{{ email_form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="auth-field">
+                        <label for="id_email">Email address</label>
+                        <input type="email"
+                               name="email"
+                               id="id_email"
+                               class="form-control"
+                               placeholder="you@example.com"
+                               required>
+                    </div>
+
+                    <button type="submit" name="action" value="add"
+                            class="btn btn-gold w-100 mt-3">
+                        <i class="fa-solid fa-paper-plane"></i> RESEND VERIFICATION
+                    </button>
+                </form>
+
+                <p class="auth-footer">
+                    <a href="{% url 'account_login' %}">Back to sign in</a>
+                    &nbsp;·&nbsp;
+                    <a href="/">Back to home</a>
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

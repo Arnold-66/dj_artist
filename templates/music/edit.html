@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ mix.title }} | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+    <div class="container">
+        <p class="section-label">DASHBOARD</p>
+        <h1>EDIT <span>MIX.</span></h1>
+        <p>Update "{{ mix.title }}" — change the details, files or embed link below.</p>
+    </div>
+</section>
+
+<section class="content-section">
+    <div class="container">
+
+        <div class="admin-form-card">
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="form-field">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                            {% if field.field.required %}<span style="color:#c9a45c">*</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-help">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="form-errors">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-gold">SAVE CHANGES</button>
+                    <a href="{% url 'music:list' %}" class="btn btn-outline-light">CANCEL</a>
+                    <a href="{% url 'music:delete' mix.pk %}"
+                       class="btn btn-outline-danger"
+                       style="margin-left:auto;">
+                        DELETE
+                    </a>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

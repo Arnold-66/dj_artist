@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Details | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ============================================================
+       BOOKING DETAILS — TOP SPACING FIX (scoped to this page only)
+       ============================================================ */
+
+    .management-dashboard.booking-detail-page {
+        margin-top: 0 !important;
+        padding-top: 130px !important;
+        padding-bottom: 80px !important;
+        min-height: 0 !important;
+    }
+
+    /* Kill any leftover inline/container margin push */
+    .management-dashboard.booking-detail-page > .container,
+    .booking-detail-container {
+        margin-top: 0 !important;
+    }
+
+    /* Tablet */
+    @media (max-width: 991.98px) {
+        .management-dashboard.booking-detail-page {
+            padding-top: 120px !important;
+            padding-bottom: 70px !important;
+        }
+    }
+
+    /* Mobile — preserves the look you already approved */
+    @media (max-width: 767.98px) {
+        .management-dashboard.booking-detail-page {
+            padding-top: 100px !important;
+            padding-bottom: 55px !important;
+        }
+    }
+
+    /* Small mobile */
+    @media (max-width: 575.98px) {
+        .management-dashboard.booking-detail-page {
+            padding-top: 92px !important;
+            padding-bottom: 45px !important;
+        }
+    }
+</style>
+
+<section class="management-dashboard booking-detail-page">
+    <div class="container booking-detail-container">
+
+        <!-- HEADER -->
+        <div class="dashboard-welcome">
+            <div>
+                <p class="section-label">BOOKING MANAGEMENT</p>
+                <h1>BOOKING <span>DETAILS.</span></h1>
+                <p class="dashboard-subtitle">
+                    {{ booking.organization }} · Received
+                    {{ booking.created_at|date:"d M Y, H:i" }}
+                </p>
+            </div>
+
+            <a href="{% url 'bookings:bookings_list' %}"
+               class="btn btn-outline-light btn-sm">
+                BACK TO BOOKINGS
+            </a>
+        </div>
+
+        <!-- ROW 1: CLIENT INFO + STATUS -->
+        <div class="row g-3 g-lg-4 mb-3 mb-lg-4">
+
+            <!-- CLIENT INFORMATION -->
+            <div class="col-12 col-lg-8">
+                <div class="management-card booking-info-card h-100">
+
+                    <div class="booking-card-head">
+                        <p class="section-label">CLIENT INFORMATION</p>
+                        <h3>{{ booking.organization }}</h3>
+                    </div>
+
+                    <div class="table-responsive dashboard-table-wrapper">
+                        <table class="table table-dark align-middle mb-0">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" class="booking-label-cell">Contact</th>
+                                    <td>{{ booking.contact_name }}</td>
+                                    <th scope="row" class="booking-label-cell">Email</th>
+                                    <td>
+                                        <a href="mailto:{{ booking.email }}"
+                                           class="booking-inline-link">
+                                            {{ booking.email }}
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="booking-label-cell">Phone</th>
+                                    <td>{{ booking.phone|default:"Not provided" }}</td>
+                                    <th scope="row" class="booking-label-cell">Event Type</th>
+                                    <td>{{ booking.get_event_type_display }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="booking-label-cell">Event Name</th>
+                                    <td>{{ booking.event_name|default:"Not provided" }}</td>
+                                    <th scope="row" class="booking-label-cell">Event Date</th>
+                                    <td>{{ booking.event_date|date:"d M Y" }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="booking-label-cell">Venue</th>
+                                    <td>{{ booking.venue|default:"Not provided" }}</td>
+                                    <th scope="row" class="booking-label-cell">Location</th>
+                                    <td>{{ booking.city_country }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="booking-label-cell">Audience</th>
+                                    <td>{{ booking.audience_size|default:"Not provided" }}</td>
+                                    <th scope="row" class="booking-label-cell">Budget</th>
+                                    <td>{{ booking.budget|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" class="booking-label-cell">Duration</th>
+                                    <td>{{ booking.performance_duration|default:"Not provided" }}</td>
+                                    <th scope="row" class="booking-label-cell">Status</th>
+                                    <td>
+                                        <span class="booking-status">
+                                            {{ booking.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- STATUS CARD -->
+            <div class="col-12 col-lg-4">
+                <div class="management-card booking-status-card h-100">
+
+                    <div class="booking-card-head">
+                        <p class="section-label">BOOKING STATUS</p>
+                        <h3>UPDATE STATUS</h3>
+                    </div>
+
+                    <div class="current-status-block">
+                        <span class="status-caption">Current status</span>
+                        <span class="booking-status booking-status-large">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+
+                    <form method="post" class="booking-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_status">
+
+                        <label class="booking-label" for="id_status">
+                            Change status
+                        </label>
+                        {{ status_form.status }}
+
+                        {% if status_form.status.errors %}
+                            <div class="booking-error">
+                                {{ status_form.status.errors }}
+                            </div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-gold w-100 mt-3">
+                            SAVE STATUS
+                        </button>
+                    </form>
+
+                    <hr class="booking-card-divider">
+
+                    <p class="status-meta">
+                        <strong>Received:</strong>
+                        {{ booking.created_at|date:"d M Y, H:i" }}
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ROW 2: CLIENT MESSAGE + REPLY BUTTON -->
+        <div class="row g-3 g-lg-4 mb-3 mb-lg-4">
+
+            <!-- CLIENT MESSAGE -->
+            <div class="col-12 col-lg-8">
+                <div class="management-card booking-message-card h-100">
+
+                    <div class="booking-card-head">
+                        <p class="section-label">CLIENT'S MESSAGE</p>
+                        <h3>Original Inquiry</h3>
+                    </div>
+
+                    {% if booking.message %}
+                        <div class="booking-message">
+                            {{ booking.message|linebreaksbr }}
+                        </div>
+                    {% else %}
+                        <p class="muted">No message was included with this booking.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- REPLY ACTION -->
+            <div class="col-12 col-lg-4">
+                <div class="management-card booking-reply-card h-100">
+
+                    <div class="booking-card-head">
+                        <p class="section-label">CLIENT COMMUNICATION</p>
+                        <h3>REPLY TO CLIENT</h3>
+                    </div>
+
+                    <p class="muted reply-intro">
+                        Send an email directly to
+                        <strong class="booking-email-inline">{{ booking.email }}</strong>.
+                    </p>
+
+                    <div class="reply-action">
+                        <button type="button"
+                                class="btn btn-gold w-100"
+                                data-bs-toggle="modal"
+                                data-bs-target="#replyModal">
+                            REPLY VIA EMAIL
+                        </button>
+                    </div>
+
+                    <p class="reply-hint">
+                        A compose window will open — your message will be
+                        delivered by email and logged in the history below.
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ROW 3: REPLY HISTORY -->
+        <div class="row g-3 g-lg-4">
+            <div class="col-12">
+                <div class="management-card booking-history-card">
+
+                    <div class="booking-card-head">
+                        <p class="section-label">COMMUNICATION HISTORY</p>
+                        <h3>EMAIL REPLIES</h3>
+                    </div>
+
+                    {% for reply in replies %}
+
+                        <div class="booking-reply">
+
+                            <div class="booking-reply-head">
+                                <h5>{{ reply.subject }}</h5>
+                                <span class="booking-reply-date">
+                                    {{ reply.created_at|date:"d M Y, H:i" }}
+                                </span>
+                            </div>
+
+                            <p class="booking-reply-meta">
+                                <strong>To:</strong> {{ reply.recipient }}
+                                <span class="dot">·</span>
+                                <strong>Sent by:</strong>
+                                {{ reply.sender.username|default:"Former staff member" }}
+                                <span class="dot">·</span>
+                                <strong>Status:</strong>
+                                {{ reply.get_email_status_display }}
+                            </p>
+
+                            <div class="booking-message">
+                                {{ reply.message|linebreaksbr }}
+                            </div>
+
+                            {% if reply.email_status == "failed" %}
+                                <p class="booking-error">
+                                    Email error: {{ reply.error_message }}
+                                </p>
+                            {% endif %}
+
+                        </div>
+
+                    {% empty %}
+
+                        <p class="muted empty-replies">
+                            No replies have been sent for this inquiry yet.
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- REPLY MODAL -->
+<div class="modal fade" id="replyModal" tabindex="-1"
+     aria-labelledby="replyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content booking-modal">
+
+            <div class="modal-header">
+                <div>
+                    <p class="section-label mb-1">REPLY TO CLIENT</p>
+                    <h5 class="modal-title" id="replyModalLabel">
+                        Compose Email
+                    </h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post" class="booking-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="send_reply">
+
+                <div class="modal-body">
+
+                    <p class="muted reply-modal-to">
+                        Sending to
+                        <strong>{{ booking.email }}</strong>
+                        ({{ booking.contact_name }})
+                    </p>
+
+                    <div class="booking-form-field">
+                        <label class="booking-label"
+                               for="{{ reply_form.subject.id_for_label }}">
+                            Email subject
+                        </label>
+                        {{ reply_form.subject }}
+                        {% if reply_form.subject.errors %}
+                            <div class="booking-error">
+                                {{ reply_form.subject.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="booking-form-field">
+                        <label class="booking-label"
+                               for="{{ reply_form.message.id_for_label }}">
+                            Your message
+                        </label>
+                        {{ reply_form.message }}
+                        {% if reply_form.message.errors %}
+                            <div class="booking-error">
+                                {{ reply_form.message.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light btn-sm"
+                            data-bs-dismiss="modal">
+                        CANCEL
+                    </button>
+                    <button type="submit" class="btn btn-gold btn-sm">
+                        SEND EMAIL REPLY
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var hasReplyErrors =
+            document.querySelector("#replyModal .booking-error") !== null;
+
+        if (hasReplyErrors) {
+            var modalEl = document.getElementById("replyModal");
+            if (modalEl && window.bootstrap) {
+                var modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        }
+    });
+</script>
+{% endblock %}

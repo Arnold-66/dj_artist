@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Music & Mixes | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+    <div class="container" style="margin-top: 8rem;">
+        <p class="section-label">LISTEN &amp; WATCH</p>
+        <h1>THE MIX<br><span>HUB.</span></h1>
+        <p>Performances, mixes and sounds from the artist.</p>
+    </div>
+</section>
+
+<!-- VIDEOS -->
+<section class="content-section music-content-section">
+    <div class="container">
+        <div class="section-heading mb-4 d-flex justify-content-between align-items-end flex-wrap gap-2">
+            <div>
+                <p class="section-label">WATCH</p>
+                <h2>VIDEOS <span>&amp; PERFORMANCES.</span></h2>
+            </div>
+            {% if request.user.is_authenticated and request.user.is_staff %}
+                <a href="{% url 'music:add' %}" class="btn btn-gold btn-sm add-music-btn">
+                    + ADD MUSIC
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="row g-3 video-grid">
+            {% for video in videos %}
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <article class="music-card">
+                        {% if not video.video_file and video.cover_image %}
+                            <img src="{{ video.cover_image.url }}" alt="{{ video.title }}" class="mix-cover">
+                        {% endif %}
+
+                        <div class="music-card-body">
+                            <h3>{{ video.title }}</h3>
+                            {% if video.description %}<p>{{ video.description }}</p>{% endif %}
+
+                            {% if video.video_file %}
+                                {% url 'music:download' video.pk as video_download_url %}
+                                {% include "music/_player.html" with src=video.video_file.url kind="video" title=video.title download_url=video_download_url %}
+                            {% else %}
+                                {% with embed_src=video.get_embed_src %}
+                                    {% if embed_src %}
+                                        <div class="music-player video-player">
+                                            <iframe src="{{ embed_src }}" title="{{ video.title }}" loading="lazy"
+                                                    referrerpolicy="strict-origin-when-cross-origin"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                    allowfullscreen></iframe>
+                                        </div>
+                                    {% else %}
+                                        <p class="muted">No valid video link has been added.</p>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+
+                            {% if video.streaming_links %}
+                                <div class="streaming-links">
+                                    {% for name, icon, url in video.streaming_links %}
+                                        <a href="{{ url }}" target="_blank" rel="noopener noreferrer"
+                                           class="streaming-link" title="{{ name }}" aria-label="{{ name }}">
+                                            <i class="{{ icon }}"></i>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if request.user.is_authenticated and request.user.is_staff %}
+                                <div class="staff-actions mt-2 d-flex gap-2">
+                                    <a href="{% url 'music:edit' video.pk %}" class="btn btn-gold btn-sm">EDIT</a>
+                                    <a href="{% url 'music:delete' video.pk %}" class="btn btn-outline-danger btn-sm">DELETE</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </article>
+                </div>
+            {% empty %}
+                <div class="col-12"><div class="music-empty"><p>No videos have been added yet.</p></div></div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- AUDIO -->
+<section class="content-section audio-library-section">
+    <div class="container">
+        <div class="section-heading audio-main-heading d-flex justify-content-between align-items-end flex-wrap gap-2">
+            <div>
+                <p class="section-label">LISTEN</p>
+                <h2>AUDIO <span>&amp; MIXES.</span></h2>
+                <p class="audio-intro">
+                    {% if total_audio_count %}{{ total_audio_count }} mix{{ total_audio_count|pluralize:"es" }} loaded so far.{% else %}Explore the latest tracks and mixes across music platforms.{% endif %}
+                </p>
+            </div>
+            {% if request.user.is_authenticated and request.user.is_staff %}
+                <a href="{% url 'music:add' %}" class="btn btn-gold btn-sm add-music-btn">
+                    + ADD MUSIC
+                </a>
+            {% endif %}
+        </div>
+
+        {% for group in audio_groups %}
+            <div class="platform-section">
+                <div class="platform-heading">
+                    <div>
+                        <p class="section-label">LISTEN ON</p>
+                        <h3>{{ group.name }}</h3>
+                    </div>
+                    <span class="platform-count">
+                        {{ group.tracks|length }} TRACK{{ group.tracks|length|pluralize }}
+                    </span>
+                </div>
+
+                <div class="row g-3 audio-grid">
+                    {% for audio in group.tracks %}
+                        <div class="col-12 col-sm-6 col-lg-4">
+                            <article class="audio-track-card">
+                                <div class="audio-track-body">
+                                    <span class="track-platform">
+                                        {{ audio.platform|default:group.name }}
+                                    </span>
+                                    <h4>{{ audio.title }}</h4>
+                                    {% if audio.description %}
+                                        <p class="track-description">{{ audio.description|linebreaksbr }}</p>
+                                    {% endif %}
+
+                                    {% if audio.audio_file %}
+                                        {% url 'music:download' audio.pk as audio_download_url %}
+                                        {% if audio.cover_image %}
+                                            {% include "music/_player.html" with src=audio.audio_file.url kind="audio" title=audio.title download_url=audio_download_url cover_url=audio.cover_image.url %}
+                                        {% else %}
+                                            {% include "music/_player.html" with src=audio.audio_file.url kind="audio" title=audio.title download_url=audio_download_url %}
+                                        {% endif %}
+                                    {% else %}
+                                        {% with embed_src=audio.get_embed_src %}
+                                            {% if embed_src %}
+                                                <div class="audio-embed">
+                                                    <iframe src="{{ embed_src }}" title="{{ audio.title }}" loading="lazy"
+                                                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                                            allowfullscreen></iframe>
+                                                </div>
+                                            {% else %}
+                                                <p class="muted">This track does not have a valid player link.</p>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+
+                                    {% if audio.streaming_links %}
+                                        <div class="streaming-links">
+                                            {% for name, icon, url in audio.streaming_links %}
+                                                <a href="{{ url }}" target="_blank" rel="noopener noreferrer"
+                                                   class="streaming-link" title="{{ name }}" aria-label="{{ name }}">
+                                                    <i class="{{ icon }}"></i>
+                                                </a>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if request.user.is_authenticated and request.user.is_staff %}
+                                        <div class="staff-actions mt-2 d-flex gap-2">
+                                            <a href="{% url 'music:edit' audio.pk %}" class="btn btn-gold btn-sm">EDIT</a>
+                                            <a href="{% url 'music:delete' audio.pk %}" class="btn btn-outline-danger btn-sm">DELETE</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="music-empty">
+                <h3>No music available yet.</h3>
+                <p>New tracks and mixes will appear here.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

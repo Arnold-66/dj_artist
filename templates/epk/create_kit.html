@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}New Press Kit | DJ ARTIST{% endblock %}
+
+{% block content %}
+<section class="content-section">
+    <div class="container">
+
+        <p class="section-label">ADMINISTRATION</p>
+        <h1>NEW PRESS <span>KIT.</span></h1>
+
+        <form method="post" class="mt-4" style="max-width:600px;">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-gold">CREATE KIT</button>
+                <a href="{% url 'epk:kits_index' %}" class="btn btn-outline-secondary">CANCEL</a>
+            </div>
+        </form>
+
+    </div>
+</section>
+{% endblock %}

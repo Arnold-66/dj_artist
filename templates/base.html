@@ -1,0 +1,95 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}DJ ARTIST | Official Website{% endblock %}</title>
+  <meta name="description" content="Official DJ artist website, bookings, music, events and electronic press kit.">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/player.css' %}">
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="/">DJ <span>ARTIST</span></a>
+
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+
+        <li class="nav-item"><a class="nav-link" href="/">HOME</a></li>
+        <li class="nav-item"><a class="nav-link" href="/music/">MUSIC</a></li>
+        <li class="nav-item"><a class="nav-link" href="/events/">EVENTS</a></li>
+        <li class="nav-item"><a class="nav-link" href="/epk/official/">EPK</a></li>
+
+        {% if request.user.is_authenticated %}
+          {# ---------- DOWNLOAD HISTORY (all logged-in users) ---------- #}
+          {% if request.user.is_kit_user %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'downloads:history' %}">MY DOWNLOADS</a>
+            </li>
+          {% endif %}
+
+          {# ---------- STAFF / OPERATOR ONLY ---------- #}
+          {% if request.user.is_staff %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'epk:kits_index' %}">MANAGE EPK</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'dashboard:overview' %}">DASHBOARD</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'bookings:bookings_list' %}">BOOKINGS</a>
+            </li>
+            {% if request.user.is_superuser or request.user.role == "admin" %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard:user_list' %}">USERS</a>
+              </li>
+            {% endif %}
+          {% endif %}
+
+          <li class="nav-item">
+            <form method="post" action="{% url 'dashboard:logout' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="nav-link btn btn-link">LOGOUT</button>
+            </form>
+          </li>
+
+        {% else %}
+          {# ---------- GUESTS ---------- #}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'account_login' %}">SIGN IN</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link booking-link" href="{% url 'account_signup' %}">
+              SIGN UP
+            </a>
+          </li>
+        {% endif %}
+
+        <li class="nav-item">
+          <a class="nav-link booking-link" href="/bookings/">BOOK THE DJ</a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+<main>{% if messages %}<div class="container messages">{% for message in messages %}<div class="alert alert-success">{{ message }}</div>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
+<footer><div class="container text-center"><h4>DJ ARTIST</h4><p>Music. Culture. Unforgettable Experiences.</p><p class="small">&copy; {% now "Y" %} DJ ARTIST. All rights reserved.</p><div class="footer-links"><a href="{% url 'account_login' %}">Management</a> · <a href="/subscribe/">Subscribe</a></div></div></footer>
+<div id="cookie-banner" class="cookie-banner" hidden><span>We use essential cookies for site functionality. Optional analytics and marketing cookies can be configured here.</span><div><button class="btn btn-sm btn-outline-light" id="cookie-reject">Reject optional</button> <button class="btn btn-sm btn-gold" id="cookie-accept">Accept</button></div></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/site.js' %}"></script>
+<script src="{% static 'js/player.js' %}" defer></script>
+
+{% block extra_scripts %}{% endblock %}
+
+</body></html>

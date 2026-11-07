@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Delete {{ mix.title }} | DJ ARTIST{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container">
+        <p class="section-label">STAFF</p>
+        <h1>DELETE <span>MIX.</span></h1>
+    </div>
+</section>
+
+<section class="content-section">
+    <div class="container">
+        <div class="music-empty">
+            <h3>Are you sure?</h3>
+            <p>
+                You are about to permanently delete
+                <strong>"{{ mix.title }}"</strong>
+                ({{ mix.get_media_type_display }}).
+                This action cannot be undone.
+            </p>
+
+            <form method="post" class="d-flex gap-2 justify-content-center mt-4">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">YES, DELETE</button>
+                <a href="{% url 'music:list' %}" class="btn btn-outline-secondary">CANCEL</a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

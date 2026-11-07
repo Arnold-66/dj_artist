@@ -1,0 +1,1 @@
+{% extends "admin/change_form.html" %}{% block object-tools-items %}{{ block.super }}{% if original and not original.sent_at %}<li><a href="{% url 'admin:notifications_emailcampaign_send' original.pk %}">Send this campaign</a></li>{% endif %}{% endblock %}

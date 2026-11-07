@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage EPK | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<section class="content-section">
+    <div class="container">
+
+        <p class="section-label">ADMINISTRATION</p>
+        <h1>MANAGE <span>EPK.</span></h1>
+
+        {% if messages %}
+            <div class="mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {# ---------------- KIT SETTINGS ---------------- #}
+        <div class="epk-content-section mt-4">
+            <p class="section-label">KIT SETTINGS</p>
+            <h2>PRESS KIT <span>DETAILS.</span></h2>
+
+            <form method="post" enctype="multipart/form-data" class="mt-3">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-gold">
+                    SAVE KIT SETTINGS
+                </button>
+            </form>
+        </div>
+
+        {# ---------------- ADD IMAGES ---------------- #}
+        <div class="epk-content-section mt-5">
+            <p class="section-label">PRESS IMAGES</p>
+            <h2>ADD <span>IMAGES.</span></h2>
+
+            <form method="post"
+                  action="{% url 'epk:upload_images' kit.pk %}"
+                  enctype="multipart/form-data"
+                  class="mt-3">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ upload_form.images.id_for_label }}">
+                        {{ upload_form.images.label }}
+                    </label>
+                    {{ upload_form.images }}
+                    {% if upload_form.images.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ upload_form.images.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-gold">
+                    UPLOAD IMAGES
+                </button>
+            </form>
+        </div>
+
+        {# ---------------- IMAGE GALLERY (edit / delete / select) ---------------- #}
+        <div class="epk-content-section mt-5">
+            <p class="section-label">EXISTING IMAGES</p>
+            <h2>GALLERY <span>&amp; VISIBILITY.</span></h2>
+
+            {% if press_images %}
+
+                <p class="muted small">
+                    Tick an image to include it in the public EPK gallery,
+                    then click <strong>SAVE VISIBILITY</strong> below the grid.
+                </p>
+
+                
+                <form id="visibility-form"
+                      method="post"
+                      action="{% url 'epk:update_images' kit.pk %}">
+                    {% csrf_token %}
+                </form>
+
+                <div class="row g-4 mt-2">
+
+                    {% for photo in press_images %}
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="epk-download-card h-100">
+
+                                <a href="{{ photo.image.url }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    <img
+                                        src="{{ photo.image.url }}"
+                                        alt="{{ photo.title }}"
+                                        loading="lazy"
+                                        style="width:100%;height:180px;object-fit:cover;border-radius:6px;"
+                                    >
+                                </a>
+
+                                {# ---- Visibility checkbox (belongs to #visibility-form, but lives here visually) ---- #}
+                                <div class="mt-2 d-flex align-items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input"
+                                        name="press_images"
+                                        value="{{ photo.pk }}"
+                                        id="sel-{{ photo.pk }}"
+                                        form="visibility-form"
+                                        {% if photo.pk in selected_image_ids %}checked{% endif %}
+                                    >
+                                    <label for="sel-{{ photo.pk }}" class="form-check-label small">
+                                        Show in public EPK
+                                    </label>
+                                </div>
+
+                                {# ---- Inline edit form for THIS image (sibling, not nested) ---- #}
+                                <details class="mt-2">
+                                    <summary class="small">Edit details</summary>
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'epk:edit_image' kit.pk photo.pk %}"
+                                        enctype="multipart/form-data"
+                                        class="mt-2"
+                                    >
+                                        {% csrf_token %}
+
+                                        <div class="mb-2">
+                                            <label class="form-label small" for="title-{{ photo.pk }}">
+                                                Title
+                                            </label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="title-{{ photo.pk }}"
+                                                name="title"
+                                                value="{{ photo.title }}"
+                                                maxlength="120"
+                                            >
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label class="form-label small" for="credit-{{ photo.pk }}">
+                                                Photographer credit
+                                            </label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="credit-{{ photo.pk }}"
+                                                name="photographer_credit"
+                                                value="{{ photo.photographer_credit }}"
+                                                maxlength="160"
+                                            >
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label class="form-label small" for="image-{{ photo.pk }}">
+                                                Replace image (optional)
+                                            </label>
+                                            <input
+                                                type="file"
+                                                class="form-control"
+                                                id="image-{{ photo.pk }}"
+                                                name="image"
+                                                accept=".jpg,.jpeg,.png,.webp,image/*"
+                                            >
+                                        </div>
+
+                                        <button type="submit" class="btn btn-gold btn-sm">
+                                            SAVE IMAGE
+                                        </button>
+                                    </form>
+                                </details>
+
+                                {# ---- Delete (hard delete) ---- #}
+                                <form method="post"
+                                      action="{% url 'epk:delete_image' kit.pk photo.pk %}"
+                                      class="mt-2"
+                                      onsubmit="return confirm('Delete this image permanently? This removes the file from storage.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        DELETE IMAGE
+                                    </button>
+                                </form>
+
+                                {# ---- Remove from gallery only (soft) ---- #}
+                                {% if photo.pk in selected_image_ids %}
+                                    <form method="post"
+                                          action="{% url 'epk:remove_image' kit.pk photo.pk %}"
+                                          class="mt-1">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                            REMOVE FROM GALLERY
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+                {# ---- Submit button, inside the visibility form via the `form` attribute ---- #}
+                <button type="submit"
+                        form="visibility-form"
+                        class="btn btn-gold mt-4">
+                    SAVE VISIBILITY
+                </button>
+
+            {% else %}
+                <p class="muted mt-3">
+                    No press images uploaded yet. Use the form above to add some.
+                </p>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

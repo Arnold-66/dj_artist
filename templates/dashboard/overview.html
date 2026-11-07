@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Management Dashboard | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<section class="management-dashboard">
+
+    <div class="container" style="margin-top: 8rem;">
+
+        <div class="dashboard-welcome">
+            <div>
+                <p class="section-label">MANAGEMENT CENTRE</p>
+                <h1>WELCOME BACK,<br><span>{{ request.user.username|upper }}.</span></h1>
+                <p class="dashboard-subtitle">
+                    {{ staff_role }} · Manage your DJ ARTIST website from here.
+                </p>
+            </div>
+
+            <form method="post" action="{% url 'dashboard:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light">
+                    LOG OUT
+                </button>
+            </form>
+        </div>
+
+        <div class="dashboard-section-heading">
+            <p class="section-label">WEBSITE PERFORMANCE</p>
+            <h2>OVERVIEW <span>& ACTIVITY.</span></h2>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stat-card">
+                    <p>Total Inquiries</p>
+                    <h2>{{ booking_count }}</h2>
+                    <span>All booking requests</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stat-card">
+                    <p>New Inquiries</p>
+                    <h2>{{ new_bookings }}</h2>
+                    <span>Awaiting attention</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stat-card">
+                    <p>Confirmed Bookings</p>
+                    <h2>{{ confirmed_bookings }}</h2>
+                    <span>Confirmed requests</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stat-card">
+                    <p>Subscribers</p>
+                    <h2>{{ subscriber_count }}</h2>
+                    <span>Confirmed subscribers</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stat-card">
+                    <p>Published Events</p>
+                    <h2>{{ event_count }}</h2>
+                    <span>Visible on the website</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stat-card">
+                    <p>Published Music</p>
+                    <h2>{{ mix_count }}</h2>
+                    <span>Audio and video content</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stat-card">
+                    <p>Audio Tracks</p>
+                    <h2>{{ audio_count }}</h2>
+                    <span>Published audio</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stat-card">
+                    <p>Videos</p>
+                    <h2>{{ video_count }}</h2>
+                    <span>Published videos</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dashboard-section-heading mt-5">
+            <p class="section-label">QUICK ACCESS</p>
+            <h2>MANAGE <span>YOUR WEBSITE.</span></h2>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <a href="{% url 'dashboard:overview' %}" class="management-card">
+                    <h3>Dashboard</h3>
+                    <p>View website performance and activity.</p>
+                    <span>OPEN SECTION →</span>
+                </a>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <a href="{% url 'bookings:bookings_list' %}" class="management-card">
+                    <h3>Bookings</h3>
+                    <p>View inquiries, update booking statuses and reply to clients.</p>
+                    <span>MANAGE BOOKINGS →</span>
+                </a>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="management-card management-card-disabled">
+                    <h3>Music Library</h3>
+                    <p>Add videos, mixes and audio tracks.</p>
+                    <span>COMING IN THE NEXT STEP</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="management-card management-card-disabled">
+                    <h3>Events</h3>
+                    <p>Create events and upload posters.</p>
+                    <span>COMING IN THE NEXT STEP</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="management-card management-card-disabled">
+                    <h3>Press Kit & Images</h3>
+                    <p>Manage artist biographies and press photographs.</p>
+                    <span>COMING IN THE NEXT STEP</span>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="management-card management-card-disabled">
+                    <h3>User Management</h3>
+                    <p>Create staff accounts and assign responsibilities.</p>
+                    <span>COMING IN THE NEXT STEP</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dashboard-section-heading mt-5">
+            <p class="section-label">LATEST REQUESTS</p>
+            <h2>RECENT <span>BOOKINGS.</span></h2>
+        </div>
+
+        <div class="table-responsive dashboard-table-wrapper">
+
+            <table class="table table-dark align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Organization</th>
+                        <th>Event</th>
+                        <th>Event Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in recent_bookings %}
+
+                        <tr>
+                            <td>{{ item.organization }}</td>
+                            <td>{{ item.get_event_type_display }}</td>
+                            <td>{{ item.event_date|date:"d M Y" }}</td>
+                            <td>
+                                <span class="booking-status">
+                                    {{ item.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="4">
+                                No booking inquiries have been received yet.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="dashboard-section-heading mt-5">
+            <p class="section-label">YOUR SCHEDULE</p>
+            <h2>UPCOMING <span>EVENTS.</span></h2>
+        </div>
+
+        <div class="row g-3">
+
+            {% for event in upcoming_events %}
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="management-card">
+                        <h3>{{ event.title }}</h3>
+                        <p>{{ event.venue }} · {{ event.city_country }}</p>
+                        <span>{{ event.start_at|date:"d M Y, H:i" }}</span>
+                    </div>
+                </div>
+
+            {% empty %}
+
+                <div class="col-12">
+                    <p class="muted">There are no upcoming published events.</p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Upcoming Events | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<!-- EVENTS PAGE HEADER -->
+<section class="page-hero events-hero">
+    <div class="container" style="margin-top: 8rem;">
+        <p class="section-label">ON THE ROAD</p>
+
+        <h1>
+            UPCOMING<br>
+            <span>EVENTS.</span>
+        </h1>
+
+        {% if request.user.is_authenticated and request.user.is_staff %}
+            <div style="margin-top: 20px;">
+                <a href="{% url 'events:create' %}" class="btn btn-gold">
+                    + ADD EVENT
+                </a>
+            </div>
+        {% endif %}
+
+        <p>
+            Find the next place to experience the music.
+            Discover upcoming performances, festivals and special events.
+        </p>
+    </div>
+</section>
+
+
+<!-- EVENTS WITH POSTERS -->
+{% if events_with_posters %}
+
+<section class="events-section">
+    <div class="container">
+
+        <div class="events-heading">
+            <div>
+                <p class="section-label">THE NEXT EXPERIENCES</p>
+                <h2>FEATURED <span>EVENTS.</span></h2>
+            </div>
+
+            <span class="events-count">
+                {{ events_with_posters|length }} EVENTS
+            </span>
+        </div>
+
+        <div class="row g-4">
+
+            {% for event in events_with_posters %}
+
+            <div class="col-md-6 col-lg-4">
+
+                <article class="event-card">
+
+                    <!-- EVENT POSTER -->
+                    <a href="{% url 'events:detail' event.slug %}"
+                       class="event-poster-link">
+
+                        {% if event.poster %}
+                        <img
+                            src="{{ event.poster.url }}"
+                            alt="Poster for {{ event.title }}"
+                            class="event-poster"
+                            loading="lazy"
+                        >
+                        {% endif %}
+
+                        <div class="event-image-overlay"></div>
+
+                        <div class="event-date-badge">
+                            <span>{{ event.start_at|date:"M" }}</span>
+                            <strong>{{ event.start_at|date:"d" }}</strong>
+                        </div>
+
+                    </a>
+
+                    <!-- EVENT INFORMATION -->
+                    <div class="event-card-body">
+
+                        <p class="section-label event-date-line">
+                            {{ event.start_at|date:"D, d M Y · H:i" }}
+                        </p>
+
+                        <h3>{{ event.title }}</h3>
+
+                        <p class="event-location">
+                            {% if event.venue %}
+                                {{ event.venue }} ·
+                            {% endif %}
+                            {{ event.city_country }}
+                        </p>
+
+                        {% if event.description %}
+                        <p class="event-description">
+                            {{ event.description|truncatewords:22 }}
+                        </p>
+                        {% endif %}
+
+                        <a href="{% url 'events:detail' event.slug %}"
+                           class="text-link">
+                            EVENT DETAILS ↗
+                        </a>
+
+                        {% if request.user.is_authenticated and request.user.is_staff %}
+                            <div class="event-manage-row">
+                                <a href="{% url 'events:update' event.slug %}"
+                                   class="btn btn-outline-light btn-sm">EDIT</a>
+                                <a href="{% url 'events:delete' event.slug %}"
+                                   class="btn btn-outline-danger btn-sm">DELETE</a>
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                </article>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+    </div>
+</section>
+
+{% endif %}
+
+
+<!-- EVENTS WITHOUT POSTERS -->
+{% if events_without_posters %}
+
+<section class="events-section events-schedule-section">
+    <div class="container">
+
+        <div class="events-heading">
+            <div>
+                <p class="section-label">SAVE THE DATE</p>
+                <h2>UPCOMING <span>DATES.</span></h2>
+            </div>
+
+            <span class="events-count">
+                {{ events_without_posters|length }} EVENTS
+            </span>
+        </div>
+
+        <div class="event-schedule-list">
+
+            {% for event in events_without_posters %}
+
+            <article class="event-schedule-card">
+
+                <!-- DATE -->
+                <div class="schedule-date">
+                    <span>{{ event.start_at|date:"M" }}</span>
+                    <strong>{{ event.start_at|date:"d" }}</strong>
+                    <small>{{ event.start_at|date:"Y" }}</small>
+                </div>
+
+                <!-- EVENT DETAILS -->
+                <div class="schedule-details">
+
+                    <p class="section-label">
+                        {{ event.event_type }}
+                    </p>
+
+                    <h3>{{ event.title }}</h3>
+
+                    <p class="event-location">
+                        {% if event.venue %}
+                            {{ event.venue }} ·
+                        {% endif %}
+                        {{ event.city_country }}
+                    </p>
+
+                    <span class="schedule-time">
+                        {{ event.start_at|date:"l · H:i" }}
+                    </span>
+
+                </div>
+
+                <!-- ACTION -->
+                <div class="schedule-action">
+                    <a href="{% url 'events:detail' event.slug %}"
+                       class="text-link">
+                        VIEW DETAILS ↗
+                    </a>
+
+                    {% if request.user.is_authenticated and request.user.is_staff %}
+                        <div class="schedule-manage-row">
+                            <a href="{% url 'events:update' event.slug %}"
+                               class="text-link">EDIT</a>
+                            <a href="{% url 'events:delete' event.slug %}"
+                               class="text-link delete-link">DELETE</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </article>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+
+{% endif %}
+
+
+<!-- NO UPCOMING EVENTS -->
+{% if not events_with_posters and not events_without_posters %}
+
+<section class="events-section">
+    <div class="container">
+
+        <div class="events-empty-state">
+
+            <p class="section-label">STAY TUNED</p>
+
+            <h2>
+                SOMETHING EXCITING<br>
+                IS <span>COMING.</span>
+            </h2>
+
+            <p>
+                No upcoming performances have been announced yet.
+                Subscribe to receive new music, event announcements
+                and tour dates directly in your inbox.
+            </p>
+
+            <a href="/subscribe/" class="btn btn-gold">
+                JOIN THE MAILING LIST
+            </a>
+
+        </div>
+
+    </div>
+</section>
+
+{% endif %}
+
+{% endblock %}

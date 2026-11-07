@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Check Your Email | DJ ARTIST{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container auth-container">
+
+        <div class="auth-hero">
+            <p class="section-label">ALMOST THERE</p>
+            <h1>CHECK YOUR <span>EMAIL.</span></h1>
+            <p class="auth-sub">
+                We've sent a verification link to your inbox.
+                Click it to unlock press-kit downloads.
+            </p>
+        </div>
+
+        <div class="auth-card">
+
+            <div class="auth-confirm-icon">
+                <i class="fa-solid fa-envelope-open-text"></i>
+            </div>
+
+            <p class="auth-confirm-line">
+                Follow the link in the email to verify your account.
+                If it doesn't arrive within a few minutes, check your spam
+                folder, or resend it below.
+            </p>
+
+            {# allauth may still surface a form here if it needs the user to
+               pick which address to resend to. Wrap defensively. #}
+            <form method="post" action="{% url 'account_email' %}" class="auth-resend-form">
+                {% csrf_token %}
+
+                <button type="submit" name="action" value="resend"
+                        class="btn btn-outline-light w-100">
+                    <i class="fa-solid fa-rotate-right"></i> RESEND VERIFICATION
+                </button>
+            </form>
+
+            <p class="auth-footer">
+                Wrong email?
+                <a href="{% url 'account_logout' %}">Sign out and try again</a>
+            </p>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

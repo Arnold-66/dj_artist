@@ -1,0 +1,167 @@
+.ds-player {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    align-items: center;
+}
+.ds-player-cover img {
+    width: 64px; height: 64px; object-fit: cover; border-radius: 6px;
+}
+.ds-player-body { flex: 1; min-width: 0; }
+.ds-player-title {
+    font-size: .85rem; font-weight: 600; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 8px;
+}
+.ds-controls {
+    display: flex; align-items: center; gap: 8px;
+}
+.ds-btn {
+    background: none; border: 0; color: #d4af37; cursor: pointer;
+    font-size: 1rem; padding: 4px;
+}
+.ds-progress {
+    flex: 1; height: 5px; background: rgba(255,255,255,0.15);
+    border-radius: 3px; position: relative; cursor: pointer;
+}
+.ds-progress-fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 0%; background: #d4af37; border-radius: 3px;
+}
+.ds-time {
+    font-size: .72rem; color: rgba(255,255,255,0.6);
+    font-variant-numeric: tabular-nums;
+}
+.ds-volume { width: 60px; }
+.ds-download-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 10px; padding: 6px 12px;
+    font-size: .78rem; font-weight: 600;
+    background: #d4af37; color: #111; border-radius: 6px;
+    text-decoration: none;
+}
+.ds-download-btn:hover { background: #f0c857; color: #111; }
+
+@media (max-width: 480px) {
+    .ds-player { flex-direction: column; align-items: stretch; }
+    .ds-player-cover { display: flex; justify-content: center; }
+}
+
+
+/* ============================================================
+   ds-player — gold progress line that actually moves
+   ============================================================ */
+
+.ds-progress {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;             /* keeps fill rounded */
+}
+
+.ds-progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0%;
+    background: linear-gradient(90deg, #c9a45c, #f0c857);
+    border-radius: 3px;
+    transition: width 0.08s linear;
+    pointer-events: none;         /* click goes to .ds-progress */
+}
+
+.ds-btn {
+    background: none;
+    border: 0;
+    color: #d4af37;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 6px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s ease;
+}
+.ds-btn:hover {
+    background: rgba(212, 175, 55, 0.15);
+}
+
+/* ============================================================
+   media-player — control row that never cuts the download button
+   ============================================================ */
+
+.media-player {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: visible;             /* download button must never be clipped */
+}
+
+.media-player-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    width: 100%;
+    padding: 4px 2px 2px;
+}
+
+.media-player-seek {
+    flex: 1 1 120px;
+    min-width: 70px;
+}
+
+.media-player-download {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: #d4af37;
+    color: #111 !important;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-decoration: none;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: background .15s ease, transform .15s ease;
+}
+.media-player-download:hover {
+    background: #f0c857;
+    color: #111 !important;
+    transform: translateY(-1px);
+}
+
+/* Compact 4-col cards */
+.music-card .media-player-download-label,
+.audio-track-card .media-player-download-label {
+    display: none;
+}
+.music-card .media-player-download,
+.audio-track-card .media-player-download {
+    padding: 6px 10px;
+    font-size: .7rem;
+}
+
+@media (max-width: 480px) {
+    .media-player-download-label { display: none; }
+    .media-player-seek { order: 10; flex: 1 1 100%; }
+}

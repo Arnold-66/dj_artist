@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Download History | DJ ARTIST{% endblock %}
+
+{% block content %}
+<section class="management-dashboard">
+    <div class="container">
+
+        <div class="dashboard-welcome">
+            <div>
+                <h1>DOWNLOAD <span>HISTORY.</span></h1>
+                <p class="dashboard-subtitle">
+                    Files you've downloaded from artist press kits.
+                </p>
+            </div>
+            <a href="{% url 'epk:detail' 'official' %}" class="btn btn-outline-light">
+                BACK TO EPK
+            </a>
+        </div>
+
+        {% if page.object_list %}
+            <div class="dashboard-table-wrapper">
+                <table class="table table-dark align-middle">
+                    <thead>
+                        <tr>
+                            <th>FILE</th>
+                            <th>TYPE</th>
+                            <th>DATE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in page.object_list %}
+                            <tr>
+                                <td>{{ log.title }}</td>
+                                <td><span class="booking-status">{{ log.get_kind_display }}</span></td>
+                                <td>{{ log.created_at|date:"d M Y, H:i" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if page.has_other_pages %}
+                <nav class="mt-4 d-flex gap-2">
+                    {% if page.has_previous %}
+                        <a class="btn btn-outline-light" href="?page={{ page.previous_page_number }}">PREVIOUS</a>
+                    {% endif %}
+                    <span class="btn btn-gold disabled">PAGE {{ page.number }} / {{ page.paginator.num_pages }}</span>
+                    {% if page.has_next %}
+                        <a class="btn btn-outline-light" href="?page={{ page.next_page_number }}">NEXT</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="music-empty text-center">
+                <h3>No downloads yet</h3>
+                <p>Head back to the official press kit to download images and riders.</p>
+                <a href="{% url 'epk:detail' 'official' %}" class="btn btn-gold mt-3">
+                    OPEN PRESS KIT
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

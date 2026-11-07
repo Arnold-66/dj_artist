@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<section class="hero"
+  {% if event.poster %}
+    style="background-image:linear-gradient(90deg,rgba(0,0,0,.94),rgba(0,0,0,.35)),url('{{ event.poster.url }}');background-position:center 25%;"
+  {% endif %}
+>
+  <div class="container hero-content">
+
+    <p class="hero-label">
+      {{ event.event_type|default:"LIVE EVENT" }} · {{ event.start_at|date:"D, d M Y" }}
+    </p>
+
+    <h1>
+      {{ event.title }}
+    </h1>
+
+    <p class="hero-description">
+      {% if event.venue %}
+        {{ event.venue }}<br>
+      {% endif %}
+      {{ event.city_country }}
+      {% if event.start_at %}
+        <br>{{ event.start_at|date:"H:i" }}
+        {% if event.end_at %}– {{ event.end_at|date:"H:i" }}{% endif %}
+      {% endif %}
+    </p>
+
+    {% if event.description %}
+      <p class="hero-description" style="margin-top:-8px;">
+        {{ event.description|linebreaksbr }}
+      </p>
+    {% endif %}
+
+    <div class="event-hero-actions">
+      {% if event.ticket_url %}
+        <a class="btn btn-gold"
+           href="{{ event.ticket_url }}"
+           target="_blank"
+           rel="noopener noreferrer">
+          TICKETS / EVENT INFO
+        </a>
+      {% endif %}
+
+      <a class="btn btn-outline-light"
+         href="{% url 'events:calendar' event.slug %}">
+        DOWNLOAD CALENDAR FILE
+      </a>
+
+      <a class="btn btn-outline-light"
+         target="_blank"
+         rel="noopener noreferrer"
+         href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text={{ event.title|urlencode }}&amp;dates={{ event.start_at|date:'Ymd\THis' }}/{{ event.end_at|default:event.start_at|date:'Ymd\THis' }}&amp;details={{ event.description|urlencode }}&amp;location={{ event.venue|urlencode }}%2C%20{{ event.city_country|urlencode }}">
+        REMIND ME · GOOGLE CALENDAR
+      </a>
+    </div>
+
+    {% if event.end_at %}
+      <p class="hero-description" style="margin-top:14px;font-size:.8rem;">
+        Ends {{ event.end_at|date:"D, d M Y · H:i" }}
+      </p>
+    {% endif %}
+
+  </div>
+
+  <div class="scroll-indicator">SCROLL TO EXPLORE</div>
+</section>
+
+<!-- ============================================
+     EVENT DETAILS / DESCRIPTION SECTION
+     ============================================ -->
+<section class="intro-section event-detail-body">
+  <div class="container">
+
+    <div class="event-detail-back-row">
+      <a href="{% url 'events:list' %}" class="text-link">← BACK TO ALL EVENTS</a>
+
+      {% if request.user.is_authenticated and request.user.is_staff %}
+        <div class="event-detail-admin-actions">
+          <a href="{% url 'events:update' event.slug %}"
+             class="btn btn-outline-light btn-sm">EDIT EVENT</a>
+          <a href="{% url 'events:delete' event.slug %}"
+             class="btn btn-outline-danger btn-sm">DELETE EVENT</a>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if event.description %}
+      <div class="detail-copy event-detail-description">
+        {{ event.description|linebreaks }}
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

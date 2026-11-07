@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Bookings | DJ ARTIST{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ============================================================
+       BOOKINGS LIST — TOP SPACING FIX (scoped to this page only)
+       ============================================================ */
+
+    /* Desktop: clear the fixed navbar cleanly with padding (not margin),
+       so the dark section background fills the gap and nothing floats. */
+    .management-dashboard.bookings-list-page {
+        margin-top: 0 !important;
+        padding-top: 130px !important;
+        padding-bottom: 80px !important;
+        min-height: 0 !important;
+    }
+
+    /* Kill any leftover inline/container margin push */
+    .management-dashboard.bookings-list-page > .container {
+        margin-top: 0 !important;
+    }
+
+    /* Tablet */
+    @media (max-width: 991.98px) {
+        .management-dashboard.bookings-list-page {
+            padding-top: 120px !important;
+            padding-bottom: 70px !important;
+        }
+    }
+
+    /* Mobile — preserves the look you already approved */
+    @media (max-width: 767.98px) {
+        .management-dashboard.bookings-list-page {
+            padding-top: 100px !important;
+            padding-bottom: 55px !important;
+        }
+    }
+
+    /* Small mobile */
+    @media (max-width: 575.98px) {
+        .management-dashboard.bookings-list-page {
+            padding-top: 92px !important;
+            padding-bottom: 45px !important;
+        }
+    }
+</style>
+
+<section class="management-dashboard bookings-list-page">
+    <div class="container">
+
+        <div class="dashboard-welcome">
+            <div>
+                <p class="section-label">MANAGEMENT CENTRE</p>
+                <h1>BOOKING <span>INQUIRIES.</span></h1>
+                <p class="dashboard-subtitle">
+                    Review booking requests and manage client relationships.
+                </p>
+            </div>
+
+            <a href="{% url 'dashboard:overview' %}" class="btn btn-outline-light">
+                BACK TO DASHBOARD
+            </a>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <p>Total Inquiries</p>
+                    <h2>{{ total_count }}</h2>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <p>New Inquiries</p>
+                    <h2>{{ new_count }}</h2>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <p>Confirmed Bookings</p>
+                    <h2>{{ confirmed_count }}</h2>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dashboard-section-heading">
+            <p class="section-label">CLIENT REQUESTS</p>
+            <h2>ALL <span>BOOKINGS.</span></h2>
+        </div>
+
+        <form method="get" class="mb-4">
+            <div class="row g-2 align-items-end">
+
+                <div class="col-md-4">
+                    <label for="status" class="form-label">Filter by status</label>
+
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All bookings</option>
+
+                        {% for value, label in statuses %}
+                            <option value="{{ value }}"
+                                {% if selected_status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-gold">
+                        FILTER
+                    </button>
+
+                    <a href="{% url 'bookings:bookings_list' %}"
+                       class="btn btn-outline-light">
+                        RESET
+                    </a>
+                </div>
+
+            </div>
+        </form>
+
+        <div class="table-responsive dashboard-table-wrapper">
+            <table class="table table-dark align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Organization</th>
+                        <th>Contact</th>
+                        <th>Event Type</th>
+                        <th>Event Date</th>
+                        <th>Status</th>
+                        <th>Received</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for booking in bookings %}
+
+                        <tr>
+                            <td>{{ booking.organization }}</td>
+                            <td>
+                                {{ booking.contact_name }}<br>
+                                <small>{{ booking.email }}</small>
+                            </td>
+                            <td>{{ booking.get_event_type_display }}</td>
+                            <td>{{ booking.event_date|date:"d M Y" }}</td>
+                            <td>
+                                <span class="booking-status">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ booking.created_at|date:"d M Y" }}</td>
+                            <td>
+                                <a href="{% url 'bookings:booking_detail' booking.pk %}"
+                                   class="btn btn-sm btn-gold">
+                                    VIEW
+                                </a>
+                            </td>
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                No booking inquiries found.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
