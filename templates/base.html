@@ -85,7 +85,7 @@
 </nav>
 <main>{% if messages %}<div class="container messages">{% for message in messages %}<div class="alert alert-success">{{ message }}</div>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
 <footer><div class="container text-center"><h4>DJ ARTIST</h4><p>Music. Culture. Unforgettable Experiences.</p><p class="small">&copy; {% now "Y" %} DJ ARTIST. All rights reserved.</p><div class="footer-links"><a href="{% url 'account_login' %}">Management</a> · <a href="/subscribe/">Subscribe</a></div></div></footer>
-<div id="cookie-banner" class="cookie-banner" hidden><span>>We use essential cookies to keep the site working. With your permission, we also use anonymous, cookieless analytics to understand how the site is used.</span><div><button class="btn btn-sm btn-outline-light" id="cookie-reject">Reject optional</button> <button class="btn btn-sm btn-gold" id="cookie-accept">Accept</button></div></div>
+<div id="cookie-banner" class="cookie-banner" hidden><span>We use essential cookies to keep the site working. With your permission, we also use anonymous, cookieless analytics to understand how the site is used.</span><div><button class="btn btn-sm btn-outline-light" id="cookie-reject">Reject optional</button> <button class="btn btn-sm btn-gold" id="cookie-accept">Accept</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/site.js' %}"></script>
 <script src="{% static 'js/player.js' %}" defer></script>
