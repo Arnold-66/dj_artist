@@ -43,7 +43,7 @@
   try {
     if (localStorage.getItem(cookieKey) === "accepted") loadUmami();
   } catch (_) {}
-})();
+
 
   /* ============================================================
      MEDIA PLAYER  (video + audio, uses native <video>/<audio>)
