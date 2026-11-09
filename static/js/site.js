@@ -1,6 +1,21 @@
 (function () {
   "use strict";
 
+  /* ---------- Umami config ---------- */
+  var UMAMI_SRC = "https://cloud.umami.is/script.js";
+  var UMAMI_WEBSITE_ID = "32d7397d-0f73-44c6-8f8a-b5e88b205b05";
+
+  function loadUmami() {
+    if (window._umamiLoaded) return;
+    window._umamiLoaded = true;
+
+    var script = document.createElement("script");
+    script.defer = true;
+    script.src = UMAMI_SRC;
+    script.setAttribute("data-website-id", UMAMI_WEBSITE_ID);
+    document.head.appendChild(script);
+  }
+
   /* ---------- Cookie banner ---------- */
   var cookieKey = "dj-cookie-choice";
   var banner = document.getElementById("cookie-banner");
@@ -10,18 +25,25 @@
     try { localStorage.setItem(cookieKey, value); } catch (_) {}
     if (banner) banner.hidden = true;
   }
+
   var acceptBtn = document.getElementById("cookie-accept");
   var rejectBtn = document.getElementById("cookie-reject");
-  if (acceptBtn) acceptBtn.addEventListener("click", function () { saveCookieChoice("accepted"); });
-  if (rejectBtn) rejectBtn.addEventListener("click", function () { saveCookieChoice("essential-only"); });
 
-  /* ---------- Shared time helper ---------- */
-  function formatTime(seconds) {
-    if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
-    var m = Math.floor(seconds / 60);
-    var s = Math.floor(seconds % 60);
-    return m + ":" + String(s).padStart(2, "0");
-  }
+  if (acceptBtn) acceptBtn.addEventListener("click", function () {
+    saveCookieChoice("accepted");
+    loadUmami();
+  });
+
+  if (rejectBtn) rejectBtn.addEventListener("click", function () {
+    saveCookieChoice("essential-only");
+    // No analytics loaded
+  });
+
+  /* Returning visitor who already accepted → load Umami immediately */
+  try {
+    if (localStorage.getItem(cookieKey) === "accepted") loadUmami();
+  } catch (_) {}
+})();
 
   /* ============================================================
      MEDIA PLAYER  (video + audio, uses native <video>/<audio>)
