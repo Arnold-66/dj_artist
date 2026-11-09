@@ -78,20 +78,18 @@ main > .management-dashboard:first-child {
 }
 
 /* ============================================================
-   EVENT CARD POSTER — SHOW FULL IMAGE, NEVER CROP
+   EVENT CARD POSTER — SHOW FULL IMAGE, NO CROP, NO GAP
    ============================================================ */
 
 .event-poster-link {
     position: relative;
-    display: block;
-    overflow: hidden;
-    background: #0a0a0a;
-    /* Fixed frame so all cards line up */
-    aspect-ratio: 4 / 5;
-    /* Center the image inside the frame */
-    display: flex;
+    display: flex;                 /* single display value — was duplicated */
     align-items: center;
     justify-content: center;
+    width: 100%;
+    aspect-ratio: 4 / 5;           /* consistent card frame */
+    overflow: hidden;
+    background: #0a0a0a;
     text-decoration: none;
 }
 
@@ -99,11 +97,9 @@ main > .management-dashboard:first-child {
     display: block;
     width: 100%;
     height: 100%;
-    /* SHOW THE WHOLE IMAGE — letterbox instead of crop */
-    object-fit: contain;
+    object-fit: contain;           /* show the WHOLE image */
     object-position: center;
-    /* Dark backdrop fills the letterbox bars */
-    background: #0a0a0a;
+    background: #0a0a0a;           /* fills letterbox bars */
     transition: transform 0.5s ease;
 }
 
@@ -153,42 +149,70 @@ main > .management-dashboard:first-child {
     font-size: 1.8rem;
     font-weight: 900;
 }
+
+/* ============================================================
+   EVENT CARD BODY — no min-height gap
+   ============================================================ */
+
 .event-card-body {
-    padding: 24px;
+    min-height: 0 !important;       /* kill the old 210px gap */
+    padding: 18px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .event-card-body .section-label {
-    margin-bottom: 10px;
+    margin-bottom: 0;
     font-size: 0.72rem;
 }
 
+.event-card-body .event-date-line {
+    margin: 0 0 4px;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    color: #c9a45c;
+    font-weight: 700;
+}
+
 .event-card-body h3 {
-    margin-bottom: 12px;
-    color: #ffffff;
-    font-size: 1.35rem;
+    margin: 0 0 6px;
+    font-size: 1.2rem;
     font-weight: 750;
-    line-height: 1.35;
+    line-height: 1.3;
+    color: #ffffff;
     overflow-wrap: anywhere;
 }
 
 .event-location {
+    margin: 0 0 6px;
     color: #c2c2c2;
-    font-size: 0.9rem;
-    line-height: 1.7;
+    font-size: 0.85rem;
+    line-height: 1.5;
 }
 
 .event-description {
-    margin: 15px 0;
+    margin: 0 0 10px;
     color: #a8a8a8;
-    font-size: 0.9rem;
-    line-height: 1.8;
+    font-size: 0.85rem;
+    line-height: 1.55;
 }
 
 .event-card-body .text-link {
     display: inline-block;
-    margin-top: 10px;
+    margin-top: auto;               /* push link to bottom */
+    padding-top: 6px;
 }
 
+/* Edit / Delete button row under the card */
+.event-card-body .event-manage-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
 
 /* =========================================
    EVENTS WITHOUT POSTERS
@@ -1575,10 +1599,6 @@ main > .management-dashboard:first-child {
 
     .event-card-body h3 {
         font-size: 1.05rem;
-    }
-
-    .schedule-action .schedule-manage-row {
-        justify-content: flex-start;
     }
 }
 
@@ -5725,4 +5745,69 @@ main > .hero:first-child h1 {
 
 .video-track-media > .media-player .media-player-download-label {
     display: none;   /* icon-only inside 4-col cards */
+}
+
+
+/* ============================================================
+   EVENT POSTER — FINAL (image fills frame, no dark bars)
+   ============================================================ */
+
+/* 1. Poster link — no fixed aspect-ratio, hugs the image */
+.event-card .event-poster-link,
+.event-poster-link {
+    display: block !important;      /* not flex — image flows naturally */
+    position: relative;
+    width: 100%;
+    aspect-ratio: auto !important;  /* remove the forced 4:5 frame */
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    background: #0a0a0a;
+    text-decoration: none;
+    line-height: 0;
+}
+
+/* 2. The image — fills the width, natural height, no crop, no bars */
+.event-card .event-poster,
+.event-poster {
+    display: block;
+    width: 100%;
+    height: auto;                   /* natural aspect ratio */
+    max-height: none;
+    object-fit: cover;              /* fills edge-to-edge — no dark bars */
+    object-position: center;
+    background: #0a0a0a;
+    margin: 0;
+    transition: transform 0.5s ease;
+}
+
+.event-card:hover .event-poster {
+    transform: scale(1.03);
+}
+
+/* 3. Body — flush to the poster, no gap */
+.event-card .event-card-body,
+.event-card-body {
+    min-height: 0 !important;
+    padding: 18px 22px 22px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+}
+
+/* 4. Overlay + badge stay on top */
+.event-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.55), transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.event-date-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
 }
