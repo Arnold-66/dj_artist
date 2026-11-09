@@ -165,3 +165,35 @@
     .media-player-download-label { display: none; }
     .media-player-seek { order: 10; flex: 1 1 100%; }
 }
+
+/* ============================================================
+   COUNTER VISIBILITY — always show current time + duration
+   ============================================================ */
+
+.media-player-current,
+.media-player-duration {
+    display: inline-block;          /* never hidden */
+    min-width: 38px;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-align: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* In very tight 4-col cards, let seek wrap so the time labels
+   don't get squeezed out. */
+.music-card .media-player-controls,
+.audio-track-card .media-player-controls {
+    row-gap: 8px;
+}
+
+@media (max-width: 575.98px) {
+    .music-card .media-player-seek,
+    .audio-track-card .media-player-seek {
+        order: 10;
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+}

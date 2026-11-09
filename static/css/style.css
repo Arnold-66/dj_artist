@@ -5811,3 +5811,50 @@ main > .hero:first-child h1 {
     left: 16px;
     z-index: 2;
 }
+
+
+/* ============================================================
+   HOMEPAGE EVENT CARD — poster fills frame, no crop, no bars
+   ============================================================ */
+
+/* Remove any legacy max-height applied to event-card images
+   that would crop the poster on the homepage grid. */
+.event-card .event-poster-link {
+    display: block;
+    width: 100%;
+    aspect-ratio: auto;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    background: #0a0a0a;
+    text-decoration: none;
+    line-height: 0;
+}
+
+.event-card .event-poster {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    object-fit: cover;
+    object-position: center;
+    background: #0a0a0a;
+    transition: transform 0.5s ease;
+}
+
+.event-card:hover .event-poster {
+    transform: scale(1.03);
+}
+
+/* Neutralise the old blanket rule that was cropping homepage posters */
+.event-card > img {
+    max-height: none;
+}
+
+/* Date badge must stay on top of the poster */
+.event-card .event-date-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
+}

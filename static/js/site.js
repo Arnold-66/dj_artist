@@ -36,13 +36,34 @@
 
   if (rejectBtn) rejectBtn.addEventListener("click", function () {
     saveCookieChoice("essential-only");
-    // No analytics loaded
   });
 
-  /* Returning visitor who already accepted → load Umami immediately */
   try {
     if (localStorage.getItem(cookieKey) === "accepted") loadUmami();
   } catch (_) {}
+
+
+  /* ============================================================
+     UTILITIES
+     ============================================================ */
+
+  /**
+   * Format seconds into M:SS or H:MM:SS.
+   * This function was MISSING before — that's why the counters
+   * (current time + duration) never appeared.
+   */
+  function formatTime(seconds) {
+    if (typeof seconds !== "number" || !isFinite(seconds) || seconds < 0) {
+      return "0:00";
+    }
+    var total = Math.floor(seconds);
+    var hrs   = Math.floor(total / 3600);
+    var mins  = Math.floor((total % 3600) / 60);
+    var secs  = total % 60;
+    var mm    = hrs > 0 ? String(mins).padStart(2, "0") : String(mins);
+    var ss    = String(secs).padStart(2, "0");
+    return hrs > 0 ? hrs + ":" + mm + ":" + ss : mm + ":" + ss;
+  }
 
 
   /* ============================================================
@@ -54,14 +75,14 @@
     if (!media) return;
     player.dataset.initialized = "true";
 
-    var toggle = player.querySelector(".media-player-toggle");
+    var toggle   = player.querySelector(".media-player-toggle");
     var playIcon = player.querySelector(".mp-icon-play");
-    var pauseIcon = player.querySelector(".mp-icon-pause");
-    var curEl = player.querySelector(".media-player-current");
-    var durEl = player.querySelector(".media-player-duration");
-    var seek = player.querySelector(".media-player-seek");
-    var muteBtn = player.querySelector(".media-player-mute");
-    var fsBtn = player.querySelector(".media-player-fullscreen");
+    var pauseIcon= player.querySelector(".mp-icon-pause");
+    var curEl    = player.querySelector(".media-player-current");
+    var durEl    = player.querySelector(".media-player-duration");
+    var seek     = player.querySelector(".media-player-seek");
+    var muteBtn  = player.querySelector(".media-player-mute");
+    var fsBtn    = player.querySelector(".media-player-fullscreen");
     var errorBox = player.querySelector(".media-player-error");
 
     function showError(msg) {
@@ -72,18 +93,24 @@
 
     function updatePlayButton() {
       var playing = !media.paused && !media.ended;
-      if (playIcon) playIcon.hidden = playing;
+      if (playIcon)  playIcon.hidden  = playing;
       if (pauseIcon) pauseIcon.hidden = !playing;
       player.classList.toggle("is-playing", playing);
       if (toggle) toggle.setAttribute("aria-label", playing ? "Pause" : "Play");
     }
 
     function updateProgress() {
-      if (!Number.isFinite(media.duration) || media.duration <= 0) return;
-      var pct = (media.currentTime / media.duration) * 100;
-      if (seek) seek.value = pct;
-      if (curEl) curEl.textContent = formatTime(media.currentTime);
-      if (durEl) durEl.textContent = formatTime(media.duration);
+      // Always render whatever we know, even before duration is ready
+      if (curEl) curEl.textContent = formatTime(media.currentTime || 0);
+
+      var d = media.duration;
+      if (Number.isFinite(d) && d > 0) {
+        if (durEl) durEl.textContent = formatTime(d);
+        if (seek)  seek.value = (media.currentTime / d) * 100;
+      } else {
+        if (durEl) durEl.textContent = "0:00";
+        if (seek)  seek.value = 0;
+      }
     }
 
     async function togglePlayback() {
@@ -98,13 +125,13 @@
 
     if (toggle) toggle.addEventListener("click", togglePlayback);
 
-    media.addEventListener("play", updatePlayButton);
-    media.addEventListener("pause", updatePlayButton);
-    media.addEventListener("ended", updatePlayButton);
-    media.addEventListener("timeupdate", updateProgress);
+    media.addEventListener("play",           updatePlayButton);
+    media.addEventListener("pause",          updatePlayButton);
+    media.addEventListener("ended",          updatePlayButton);
+    media.addEventListener("timeupdate",     updateProgress);
     media.addEventListener("loadedmetadata", function () { clearError(); updateProgress(); });
     media.addEventListener("durationchange", updateProgress);
-    media.addEventListener("canplay", clearError);
+    media.addEventListener("canplay",        clearError);
     media.addEventListener("error", function () {
       var code = media.error ? media.error.code : 0;
       var msg = "Unable to load this media file.";
@@ -145,6 +172,7 @@
 
     try { media.load(); } catch (_) {}
     updatePlayButton();
+    updateProgress();   // prime the time displays immediately
   }
 
   function initAllPlayers() {
@@ -153,7 +181,6 @@
 
   /* ============================================================
      DS-PLAYER  (compact custom audio — .ds-player)
-     THIS is what was missing. It wires the gold progress line.
      ============================================================ */
   function initDsPlayer(root) {
     if (!root || root.dataset.dsInitialized === "true") return;
@@ -161,13 +188,12 @@
     if (!audio) return;
     root.dataset.dsInitialized = "true";
 
-    var btn       = root.querySelector(".ds-btn");
-    var progress  = root.querySelector(".ds-progress");
-    var fill      = root.querySelector(".ds-progress-fill");
-    var timeEl    = root.querySelector(".ds-time");
-    var volume    = root.querySelector(".ds-volume");
+    var btn      = root.querySelector(".ds-btn");
+    var progress = root.querySelector(".ds-progress");
+    var fill     = root.querySelector(".ds-progress-fill");
+    var timeEl   = root.querySelector(".ds-time");
+    var volume   = root.querySelector(".ds-volume");
 
-    /* Play / Pause */
     if (btn) {
       btn.addEventListener("click", function () {
         if (audio.paused) audio.play().catch(function () {});
@@ -186,24 +212,22 @@
     audio.addEventListener("pause", updateIcon);
     audio.addEventListener("ended", updateIcon);
 
-    /* Gold progress fill — the fix */
     function updateProgress() {
       var d = audio.duration;
       var c = audio.currentTime;
-      if (Number.isFinite(d) && d > 0 && fill) {
-        fill.style.width = ((c / d) * 100) + "%";
+      if (Number.isFinite(d) && d > 0) {
+        if (fill)   fill.style.width = ((c / d) * 100) + "%";
         if (timeEl) timeEl.textContent = formatTime(c) + " / " + formatTime(d);
       } else if (timeEl) {
-        timeEl.textContent = formatTime(c);
+        timeEl.textContent = formatTime(c || 0);
       }
     }
 
-    audio.addEventListener("timeupdate", updateProgress);
+    audio.addEventListener("timeupdate",     updateProgress);
     audio.addEventListener("loadedmetadata", updateProgress);
     audio.addEventListener("durationchange", updateProgress);
-    audio.addEventListener("seeked", updateProgress);
+    audio.addEventListener("seeked",         updateProgress);
 
-    /* Click-to-seek on the progress bar */
     if (progress) {
       progress.addEventListener("click", function (e) {
         var rect = progress.getBoundingClientRect();
@@ -215,7 +239,6 @@
       });
     }
 
-    /* Volume */
     if (volume) {
       volume.addEventListener("input", function () {
         var v = parseFloat(volume.value);
@@ -224,6 +247,7 @@
     }
 
     updateIcon();
+    updateProgress();
   }
 
   function initAllDsPlayers() {
@@ -244,7 +268,7 @@
     initAll();
   }
 
-  /* Support players added later (AJAX, admin live views, etc.) */
+  /* Support players added later */
   if (window.MutationObserver) {
     var observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (m) {
@@ -252,7 +276,7 @@
           if (node.nodeType !== 1) return;
 
           if (node.matches && node.matches(".media-player")) initPlayer(node);
-          if (node.matches && node.matches(".ds-player")) initDsPlayer(node);
+          if (node.matches && node.matches(".ds-player"))    initDsPlayer(node);
 
           if (node.querySelectorAll) {
             node.querySelectorAll(".media-player").forEach(initPlayer);

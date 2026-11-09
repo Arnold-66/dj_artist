@@ -54,11 +54,36 @@
       {% for event in events %}
         <div class="col-md-4">
           <article class="event-card">
-            {% if event.poster %}<img src="{{ event.poster.url }}" alt="{{ event.title }}">{% endif %}
-            <p class="section-label">{{ event.start_at|date:"d M Y" }}</p>
-            <h3>{{ event.title }}</h3>
-            <p>{{ event.venue }} · {{ event.city_country }}</p>
-            <a href="{% url 'events:detail' event.slug %}" class="text-link">EVENT DETAILS ↗</a>
+
+            {# ---- POSTER (same structure as events page) ---- #}
+            {% if event.poster %}
+              <a href="{% url 'events:detail' event.slug %}" class="event-poster-link">
+                <img
+                  src="{{ event.poster.url }}"
+                  alt="Poster for {{ event.title }}"
+                  class="event-poster"
+                  loading="lazy"
+                >
+                <div class="event-image-overlay"></div>
+                <div class="event-date-badge">
+                  <span>{{ event.start_at|date:"M" }}</span>
+                  <strong>{{ event.start_at|date:"d" }}</strong>
+                </div>
+              </a>
+            {% endif %}
+
+            {# ---- EVENT INFO ---- #}
+            <div class="event-card-body">
+              <p class="section-label event-date-line">
+                {{ event.start_at|date:"D, d M Y · H:i" }}
+              </p>
+              <h3>{{ event.title }}</h3>
+              <p class="event-location">
+                {% if event.venue %}{{ event.venue }} · {% endif %}{{ event.city_country }}
+              </p>
+              <a href="{% url 'events:detail' event.slug %}" class="text-link">EVENT DETAILS ↗</a>
+            </div>
+
           </article>
         </div>
       {% empty %}
@@ -67,6 +92,7 @@
     </div>
   </div>
 </section>
+
 
 <!-- ============================================================
      VIDEOS  (matches /music/ — includes streaming links)
